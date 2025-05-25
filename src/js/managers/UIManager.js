@@ -2,20 +2,58 @@ import { GAME_CONFIG } from '../config/gameConfig.js';
 
 export class UIManager {
     constructor() {
-        this.healthElement = document.getElementById('health');
-        this.moneyElement = document.getElementById('money');
-        this.timerElement = document.getElementById('timer');
-        this.gameOverElement = document.getElementById('gameOver');
-        this.shopElement = document.getElementById('shop');
-        this.survivalTimeElement = document.getElementById('survivalTime');
-        this.finalMoneyElement = document.getElementById('finalMoney');
+        this.elements = {};
+        this.initializeElements();
+        this.setupEventListeners();
+    }
+
+    initializeElements() {
+        const elementIds = [
+            'health', 'money', 'timer', 'gameOver',
+            'shop', 'survivalTime', 'finalMoney',
+            'supply1', 'supply2', 'supply3'
+        ];
+
+        elementIds.forEach(id => {
+            const element = document.getElementById(id);
+            if (!element) {
+                console.warn(`UI element not found: ${id}`);
+                this.elements[id] = null;
+            } else {
+                this.elements[id] = element;
+            }
+        });
+    }
+
+    setupEventListeners() {
+        // Add event listeners for shop buttons
+        ['supply1', 'supply2', 'supply3'].forEach(id => {
+            const button = this.elements[id];
+            if (button) {
+                button.addEventListener('click', () => {
+                    const index = parseInt(id.replace('supply', '')) - 1;
+                    this.gameManager.buySupply(index);
+                });
+            }
+        });
+
+        // Add escape key listener for shop
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.elements.shop?.style.display === 'block') {
+                this.gameManager.closeShop();
+            }
+        });
     }
 
     updateUI(player, elapsedSeconds) {
-        this.healthElement.textContent = `🔥 Buzz: ${Math.floor(player.buzz)}`;
-        this.moneyElement.textContent = `💰 Cash: $${Math.floor(player.money)}`;
-        if (typeof elapsedSeconds === 'number') {
-            this.timerElement.textContent = `⏱️ ${this.formatTime(elapsedSeconds)}`;
+        if (this.elements.health) {
+            this.elements.health.textContent = `🔥 Buzz: ${Math.floor(player.buzz)}`;
+        }
+        if (this.elements.money) {
+            this.elements.money.textContent = `💰 Cash: $${Math.floor(player.money)}`;
+        }
+        if (this.elements.timer && typeof elapsedSeconds === 'number') {
+            this.elements.timer.textContent = `⏱️ ${this.formatTime(elapsedSeconds)}`;
         }
     }
 
@@ -26,21 +64,34 @@ export class UIManager {
     }
 
     showGameOver(reason, survivalTime, finalMoney) {
-        this.gameOverElement.style.display = 'block';
-        this.survivalTimeElement.textContent = survivalTime;
-        this.finalMoneyElement.textContent = Math.floor(finalMoney);
+        if (this.elements.gameOver) {
+            this.elements.gameOver.style.display = 'block';
+            if (this.elements.survivalTime) {
+                this.elements.survivalTime.textContent = this.formatTime(survivalTime);
+            }
+            if (this.elements.finalMoney) {
+                this.elements.finalMoney.textContent = `$${Math.floor(finalMoney)}`;
+            }
+        }
     }
 
     hideGameOver() {
-        this.gameOverElement.style.display = 'none';
+        if (this.elements.gameOver) {
+            this.elements.gameOver.style.display = 'none';
+        }
     }
 
     showShop() {
-        this.shopElement.style.display = 'block';
+        if (this.elements.shop) {
+            this.elements.shop.style.display = 'block';
+            this.updateShopPrices(this.gameManager.purchaseCount);
+        }
     }
 
     hideShop() {
-        this.shopElement.style.display = 'none';
+        if (this.elements.shop) {
+            this.elements.shop.style.display = 'none';
+        }
     }
 
     updateShopPrices(purchaseCount) {
@@ -51,9 +102,14 @@ export class UIManager {
         ];
 
         supplies.forEach(supply => {
-            const cost = Math.floor(supply.baseCost * (1 + purchaseCount * 0.5));
-            const button = document.getElementById(supply.id);
-            button.textContent = `Quick Hit - $${cost} (+${supply.baseBuzz} buzz)`;
+            const button = this.elements[supply.id];
+            if (button) {
+                const cost = Math.floor(supply.baseCost * (1 + purchaseCount * 0.5));
+                const canAfford = this.gameManager.player.money >= cost;
+                button.textContent = `Quick Hit - $${cost} (+${supply.baseBuzz} buzz)`;
+                button.disabled = !canAfford;
+                button.style.opacity = canAfford ? '1' : '0.5';
+            }
         });
     }
 }

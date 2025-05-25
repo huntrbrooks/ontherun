@@ -1,4 +1,5 @@
 import { GAME_CONFIG } from '../config/gameConfig.js';
+import { GameState } from './GameState.js';
 
 export class UIManager {
     constructor() {
@@ -11,7 +12,9 @@ export class UIManager {
         const elementIds = [
             'health', 'money', 'timer', 'gameOver',
             'shop', 'survivalTime', 'finalMoney',
-            'supply1', 'supply2', 'supply3'
+            'supply1', 'supply2', 'supply3',
+            'mainMenu', 'pauseMenu', 'continueButton',
+            'newGameButton', 'loadGameButton', 'quitButton'
         ];
 
         elementIds.forEach(id => {
@@ -26,7 +29,7 @@ export class UIManager {
     }
 
     setupEventListeners() {
-        // Add event listeners for shop buttons
+        // Shop buttons
         ['supply1', 'supply2', 'supply3'].forEach(id => {
             const button = this.elements[id];
             if (button) {
@@ -37,10 +40,51 @@ export class UIManager {
             }
         });
 
-        // Add escape key listener for shop
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.elements.shop?.style.display === 'block') {
-                this.gameManager.closeShop();
+        // Main menu buttons
+        if (this.elements.newGameButton) {
+            this.elements.newGameButton.addEventListener('click', () => {
+                this.gameManager.startGame();
+            });
+        }
+
+        if (this.elements.loadGameButton) {
+            this.elements.loadGameButton.addEventListener('click', () => {
+                this.gameManager.loadGame();
+                this.gameManager.startGame();
+            });
+        }
+
+        if (this.elements.continueButton) {
+            this.elements.continueButton.addEventListener('click', () => {
+                this.gameManager.resumeGame();
+            });
+        }
+
+        if (this.elements.quitButton) {
+            this.elements.quitButton.addEventListener('click', () => {
+                this.gameManager.showMainMenu();
+            });
+        }
+    }
+
+    showMainMenu() {
+        this.hideAllMenus();
+        if (this.elements.mainMenu) {
+            this.elements.mainMenu.style.display = 'block';
+        }
+    }
+
+    showPauseMenu() {
+        this.hideAllMenus();
+        if (this.elements.pauseMenu) {
+            this.elements.pauseMenu.style.display = 'block';
+        }
+    }
+
+    hideAllMenus() {
+        ['mainMenu', 'pauseMenu', 'shop', 'gameOver'].forEach(menuId => {
+            if (this.elements[menuId]) {
+                this.elements[menuId].style.display = 'none';
             }
         });
     }
@@ -64,6 +108,7 @@ export class UIManager {
     }
 
     showGameOver(reason, survivalTime, finalMoney) {
+        this.hideAllMenus();
         if (this.elements.gameOver) {
             this.elements.gameOver.style.display = 'block';
             if (this.elements.survivalTime) {
@@ -82,6 +127,7 @@ export class UIManager {
     }
 
     showShop() {
+        this.hideAllMenus();
         if (this.elements.shop) {
             this.elements.shop.style.display = 'block';
             this.updateShopPrices(this.gameManager.purchaseCount);

@@ -4,16 +4,16 @@ import { CityGenerator } from '../utils/CityGenerator.js';
 import { UIManager } from './UIManager.js';
 import { AudioManager } from './AudioManager.js';
 import { CollisionManager } from './CollisionManager.js';
+import { GameState } from './GameState.js';
 
 export class GameManager {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.gameRunning = false;
+        this.gameState = new GameState();
         this.startTime = 0;
         this.elapsedTime = 0;
         this.purchaseCount = 0;
-        this.shopOpen = false;
         this.gameOverReason = "";
         
         // Initialize managers
@@ -37,19 +37,105 @@ export class GameManager {
         this.update = this.update.bind(this);
         this.render = this.render.bind(this);
 
+        // Setup event listeners
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
         document.addEventListener('keydown', (e) => {
-            if (this.shopOpen && (e.key === 'Escape' || e.key === 'Esc')) {
-                this.closeShop();
+            if (e.key === 'Escape') {
+                this.handleEscapeKey();
             }
         });
     }
 
+    handleEscapeKey() {
+        if (this.gameState.isState(GameState.STATES.SHOP)) {
+            this.closeShop();
+        } else if (this.gameState.isState(GameState.STATES.PLAYING)) {
+            this.pauseGame();
+        } else if (this.gameState.isState(GameState.STATES.PAUSED)) {
+            this.resumeGame();
+        }
+    }
+
     async init() {
-        this.gameRunning = true;
+        this.gameState.setState(GameState.STATES.INITIALIZING);
+        await this.loadGame();
+        this.gameState.setState(GameState.STATES.MENU);
+        this.showMainMenu();
+    }
+
+    async loadGame() {
+        try {
+            // Load saved game if exists
+            const savedGame = localStorage.getItem('adrenalineRushSave');
+            if (savedGame) {
+                const gameData = JSON.parse(savedGame);
+                this.loadGameData(gameData);
+            } else {
+                this.generateCity();
+            }
+        } catch (error) {
+            console.error('Error loading game:', error);
+            this.generateCity();
+        }
+    }
+
+    loadGameData(gameData) {
+        this.player.load(gameData.player);
+        this.purchaseCount = gameData.purchaseCount;
+        this.supplies = gameData.supplies;
+        this.cashItems = gameData.cashItems;
+        this.police = gameData.police;
+        this.dealers = gameData.dealers;
+        this.buildings = gameData.buildings;
+        this.streets = gameData.streets;
+    }
+
+    saveGame() {
+        const gameData = {
+            player: this.player.save(),
+            purchaseCount: this.purchaseCount,
+            supplies: this.supplies,
+            cashItems: this.cashItems,
+            police: this.police,
+            dealers: this.dealers,
+            buildings: this.buildings,
+            streets: this.streets
+        };
+        localStorage.setItem('adrenalineRushSave', JSON.stringify(gameData));
+    }
+
+    startGame() {
+        if (!this.gameState.canTransitionTo(GameState.STATES.PLAYING)) return;
+        
+        this.gameState.setState(GameState.STATES.PLAYING);
         this.startTime = Date.now();
         this.elapsedTime = 0;
-        this.generateCity();
+        this.audioManager.startBackgroundMusic();
         this.gameLoop();
+    }
+
+    pauseGame() {
+        if (!this.gameState.canTransitionTo(GameState.STATES.PAUSED)) return;
+        
+        this.gameState.setState(GameState.STATES.PAUSED);
+        this.audioManager.stopBackgroundMusic();
+        this.saveGame();
+    }
+
+    resumeGame() {
+        if (!this.gameState.canTransitionTo(GameState.STATES.PLAYING)) return;
+        
+        this.gameState.setState(GameState.STATES.PLAYING);
+        this.startTime = Date.now() - (this.elapsedTime * 1000);
+        this.audioManager.startBackgroundMusic();
+        this.gameLoop();
+    }
+
+    showMainMenu() {
+        this.uiManager.showMainMenu();
     }
 
     generateCity() {
@@ -157,16 +243,19 @@ export class GameManager {
     }
 
     update() {
-        if (!this.gameRunning || this.shopOpen) return;
+        if (!this.gameState.isState(GameState.STATES.PLAYING)) return;
+        
         this.elapsedTime = (Date.now() - this.startTime) / 1000;
         this.player.update(this.buildings);
         this.updatePolice();
         this.checkCollisions();
         this.respawnSuppliesAndCash();
+        
         if (this.player.updateBuzz(this.purchaseCount)) {
             this.gameOverReason = "WITHDRAWAL";
             this.gameOver();
         }
+        
         this.uiManager.updateUI(this.player, this.elapsedTime);
     }
 
@@ -383,18 +472,20 @@ export class GameManager {
     }
 
     gameLoop() {
-        if (!this.gameRunning) return;
+        if (!this.gameState.isState(GameState.STATES.PLAYING)) return;
 
-            this.update();
+        this.update();
         this.render();
         requestAnimationFrame(this.gameLoop);
     }
 
     gameOver() {
-        this.gameRunning = false;
+        this.gameState.setState(GameState.STATES.GAME_OVER, { reason: this.gameOverReason });
         const survivalTime = Math.floor(this.elapsedTime);
         this.uiManager.showGameOver(this.gameOverReason, survivalTime, this.player.money);
         this.audioManager.playGameOverSound();
+        this.audioManager.stopBackgroundMusic();
+        this.saveGame();
     }
 
     restartGame() {
@@ -406,21 +497,22 @@ export class GameManager {
         this.smokeParticles = [];
         this.uiManager.hideGameOver();
         this.generateCity();
-        this.gameRunning = true;
-        this.startTime = Date.now();
-        this.elapsedTime = 0;
-        this.gameLoop();
+        this.startGame();
     }
 
     openShop() {
-            this.shopOpen = true;
+        if (!this.gameState.canTransitionTo(GameState.STATES.SHOP)) return;
+        
+        this.gameState.setState(GameState.STATES.SHOP);
         this.uiManager.showShop();
-            this.uiManager.updateShopPrices(this.purchaseCount);
+        this.uiManager.updateShopPrices(this.purchaseCount);
         this.audioManager.playShopSound();
     }
 
     closeShop() {
-        this.shopOpen = false;
+        if (!this.gameState.canTransitionTo(GameState.STATES.PLAYING)) return;
+        
+        this.gameState.setState(GameState.STATES.PLAYING);
         this.uiManager.hideShop();
         this.gameLoop();
     }

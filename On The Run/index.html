@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>On The Run</title>
+    <link rel="stylesheet" href="src/css/style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <h1>🏃‍♂️ ON THE RUN</h1>
+        <div id="ui">
+            <div id="health">🔥 Buzz: 100</div>
+            <div id="money">💰 Cash: $50</div>
+            <div id="timer">⏱️ 0:00</div>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="instructions">
+            <strong>CONTROLS:</strong> WASD or Arrow Keys to move • SPACEBAR at dealers to shop<br>
+            <strong>OBJECTIVE:</strong> Collect cash 💵 for money • Ice ❄ costs money but gives buzz • Avoid police 👮‍♂️<br>
+            <strong>WARNING:</strong> Negative money = dealers kill you • High money = police spawn!
+        </div>
+    </div>
+    
+    <div id="gameOver">
+        <h2>💀 FLATLINED 💀</h2>
+        <p>The poison finally caught up...</p>
+        <p><strong>Survival Time:</strong> <span id="survivalTime">0</span> seconds</p>
+        <p><strong>Cash Earned:</strong> $<span id="finalMoney">0</span></p>
+        <button onclick="gameManager.restartGame()">RESPAWN</button>
+    </div>
+    
+    <div id="shop">
+        <h3>🏍️ STREET DEALER</h3>
+        <p style="color: #ccc; font-style: italic;">"Got the good stuff, need it quick..."</p>
+        <div style="margin: 20px 0;">
+            <button onclick="gameManager.buySupply(0)" id="supply1">Quick Hit - $20 (+50 buzz)</button><br>
+            <button onclick="gameManager.buySupply(1)" id="supply2">Double Dose - $50 (+100 buzz)</button><br>
+            <button onclick="gameManager.buySupply(2)" id="supply3">Pure Grade - $100 (+200 buzz)</button><br>
+        </div>
+        <button onclick="gameManager.closeShop()" style="background: linear-gradient(45deg, #ff4757, #ff3742);">Leave</button>
+        <p style="color: #ff6b7a; font-size: 12px; margin-top: 15px;">
+            <em>⚠️ Tolerance builds with each purchase</em>
+        </p>
+    </div>
+
+    <script type="module">
+        import { GameManager } from './src/js/managers/GameManager.js';
+        
+        // Make gameManager globally accessible
+        window.gameManager = null;
+        
+        // Initialize game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                window.gameManager = new GameManager();
+                await window.gameManager.init();
+            } catch (error) {
+                console.error('Failed to initialize game:', error);
+            }
+        });
+    </script>
+</body>
+</html> 

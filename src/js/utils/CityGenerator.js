@@ -73,7 +73,7 @@ export class CityGenerator {
                         buildingWidth,
                         buildingHeight,
                         buildingWidth > 40 ? 'large' : 'small'
-                    ));
+                        ));
                 }
             }
         }

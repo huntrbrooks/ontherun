@@ -15,7 +15,7 @@ export class CollisionManager {
     checkSupplyCollisions() {
         const player = this.gameManager.player;
         const supplies = this.gameManager.supplies;
-
+        
         for (let i = supplies.length - 1; i >= 0; i--) {
             const supply = supplies[i];
             if (this.getDistance(player, supply) < player.size + supply.size) {
@@ -31,7 +31,7 @@ export class CollisionManager {
     checkCashCollisions() {
         const player = this.gameManager.player;
         const cashItems = this.gameManager.cashItems;
-
+        
         for (let i = cashItems.length - 1; i >= 0; i--) {
             const cash = cashItems[i];
             if (this.getDistance(player, cash) < player.size + cash.size) {
@@ -45,7 +45,7 @@ export class CollisionManager {
     checkPoliceCollisions() {
         const player = this.gameManager.player;
         const police = this.gameManager.police;
-
+        
         for (const cop of police) {
             if (this.getDistance(player, cop) < player.size + cop.size) {
                 this.gameManager.gameOverReason = "BUSTED";
@@ -58,7 +58,7 @@ export class CollisionManager {
     checkDealerCollisions() {
         const player = this.gameManager.player;
         const dealers = this.gameManager.dealers;
-
+        
         for (const dealer of dealers) {
             if (this.getDistance(player, dealer) < player.size + dealer.size) {
                 if (player.money < 0) {

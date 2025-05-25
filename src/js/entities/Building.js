@@ -25,12 +25,12 @@ export class Building {
         for (let x = margin; x < this.width - margin; x += windowSpacing) {
             for (let y = margin; y < this.height - margin; y += windowSpacing) {
                 if (Math.random() < 0.7) { // 70% chance of a window
-                    windows.push({
+            windows.push({
                         x: this.x + x,
                         y: this.y + y,
                         size: windowSize,
                         lit: Math.random() < 0.3 // 30% chance of being lit
-                    });
+            });
                 }
             }
         }

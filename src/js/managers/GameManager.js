@@ -36,6 +36,12 @@ export class GameManager {
         this.gameLoop = this.gameLoop.bind(this);
         this.update = this.update.bind(this);
         this.render = this.render.bind(this);
+
+        document.addEventListener('keydown', (e) => {
+            if (this.shopOpen && (e.key === 'Escape' || e.key === 'Esc')) {
+                this.closeShop();
+            }
+        });
     }
 
     async init() {
@@ -278,7 +284,7 @@ export class GameManager {
             glowGradient.addColorStop(1, 'rgba(173, 216, 230, 0)');
             this.ctx.fillStyle = glowGradient;
             this.ctx.fillRect(supply.x - supply.size * 2, supply.y - supply.size * 2, supply.size * 4, supply.size * 4);
-
+            
             // Supply crystal
             this.ctx.fillStyle = GAME_CONFIG.COLORS.SUPPLY.BASE;
             this.ctx.beginPath();
@@ -302,7 +308,7 @@ export class GameManager {
             glowGradient.addColorStop(1, 'rgba(46, 213, 115, 0)');
             this.ctx.fillStyle = glowGradient;
             this.ctx.fillRect(cash.x - cash.size * 2, cash.y - cash.size * 2, cash.size * 4, cash.size * 4);
-
+            
             // Cash symbol
             this.ctx.fillStyle = GAME_CONFIG.COLORS.CASH.BASE;
             this.ctx.font = `${cash.size * 1.5}px Arial`;
@@ -323,19 +329,19 @@ export class GameManager {
             glowGradient.addColorStop(1, 'rgba(0, 102, 204, 0)');
             this.ctx.fillStyle = glowGradient;
             this.ctx.fillRect(cop.x - cop.size, cop.y - cop.size, cop.size * 2, cop.size * 2);
-
+            
             // Police body
             this.ctx.fillStyle = GAME_CONFIG.COLORS.POLICE.BODY;
             this.ctx.beginPath();
             this.ctx.arc(cop.x, cop.y, cop.size * 0.8, 0, Math.PI * 2);
             this.ctx.fill();
-
+            
             // Police hat
             this.ctx.fillStyle = GAME_CONFIG.COLORS.POLICE.HAT;
             this.ctx.beginPath();
             this.ctx.arc(cop.x, cop.y - cop.size * 0.4, cop.size * 0.4, 0, Math.PI * 2);
             this.ctx.fill();
-
+            
             // Police badge
             this.ctx.fillStyle = GAME_CONFIG.COLORS.POLICE.BADGE;
             this.ctx.beginPath();
@@ -355,11 +361,11 @@ export class GameManager {
             particle.x += particle.vx;
             particle.y += particle.vy;
             particle.vy -= 0.1; // Float upward
-
+            
             this.ctx.fillStyle = `rgba(200, 200, 200, ${particle.life})`;
-            this.ctx.beginPath();
+                this.ctx.beginPath();
             this.ctx.arc(particle.x, particle.y, particle.size * particle.life, 0, Math.PI * 2);
-            this.ctx.fill();
+                this.ctx.fill();
         });
     }
 
@@ -379,7 +385,7 @@ export class GameManager {
     gameLoop() {
         if (!this.gameRunning) return;
 
-        this.update();
+            this.update();
         this.render();
         requestAnimationFrame(this.gameLoop);
     }
@@ -407,9 +413,9 @@ export class GameManager {
     }
 
     openShop() {
-        this.shopOpen = true;
+            this.shopOpen = true;
         this.uiManager.showShop();
-        this.uiManager.updateShopPrices(this.purchaseCount);
+            this.uiManager.updateShopPrices(this.purchaseCount);
         this.audioManager.playShopSound();
     }
 

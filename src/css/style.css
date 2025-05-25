@@ -1,0 +1,130 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #1a1a1a;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+@keyframes backgroundShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+#gameContainer {
+    position: relative;
+    text-align: center;
+}
+
+canvas {
+    border: 3px solid transparent;
+    background: linear-gradient(45deg, #2c2c54, #40407a);
+    border-radius: 15px;
+    box-shadow: 
+        0 0 30px rgba(0, 0, 0, 0.8),
+        inset 0 0 20px rgba(255, 255, 255, 0.05);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+canvas:hover {
+    box-shadow: 
+        0 0 40px rgba(255, 71, 87, 0.3),
+        inset 0 0 25px rgba(255, 255, 255, 0.08);
+}
+
+#ui {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    font-size: 18px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+#health, #money, #timer {
+    margin: 0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    min-width: 90px;
+    text-align: left;
+}
+
+#instructions {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#gameOver, #shop {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+}
+
+#gameOver h2 {
+    color: #ff4757;
+    margin-bottom: 20px;
+}
+
+button {
+    background: linear-gradient(45deg, #ff4757, #ff3742);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+h1 {
+    color: #ff4757;
+    text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+    margin-bottom: 30px;
+}
+
+#gameCanvas {
+    display: block;
+    margin: 0 auto;
+    background: #2c2c54;
+    border: 2px solid #40407a;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}

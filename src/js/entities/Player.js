@@ -3,8 +3,6 @@ import { GAME_CONFIG } from '../config/gameConfig.js';
 export class Player {
     constructor() {
         this.reset();
-        this.keys = {};
-        this.setupInputHandlers();
     }
 
     reset() {
@@ -17,24 +15,15 @@ export class Player {
         this.money = GAME_CONFIG.PLAYER.INITIAL_MONEY;
     }
 
-    setupInputHandlers() {
-        document.addEventListener('keydown', (e) => {
-            this.keys[e.key.toLowerCase()] = true;
-        });
-
-        document.addEventListener('keyup', (e) => {
-            this.keys[e.key.toLowerCase()] = false;
-        });
-    }
-
-    update(buildings) {
+    update(buildings, keys) {
         let newX = this.x;
         let newY = this.y;
 
-        if (this.keys['w'] || this.keys['arrowup']) newY -= this.speed;
-        if (this.keys['s'] || this.keys['arrowdown']) newY += this.speed;
-        if (this.keys['a'] || this.keys['arrowleft']) newX -= this.speed;
-        if (this.keys['d'] || this.keys['arrowright']) newX += this.speed;
+        // Handle movement input
+        if (keys['w'] || keys['arrowup']) newY -= this.speed;
+        if (keys['s'] || keys['arrowdown']) newY += this.speed;
+        if (keys['a'] || keys['arrowleft']) newX -= this.speed;
+        if (keys['d'] || keys['arrowright']) newX += this.speed;
 
         // Boundary checking
         newX = Math.max(this.size, Math.min(GAME_CONFIG.CANVAS_WIDTH - this.size, newX));

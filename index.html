@@ -9,39 +9,101 @@
 <body>
     <div id="gameContainer">
         <h1>🏃‍♂️ ON THE RUN</h1>
-        <div id="ui">
+        <div id="ui" style="display: none;">
             <div id="health">🔥 Buzz: 100</div>
             <div id="money">💰 Cash: $50</div>
             <div id="timer">⏱️ 0:00</div>
         </div>
         <canvas id="gameCanvas" width="800" height="600"></canvas>
-        <div id="instructions">
+        <div id="instructions" style="display: none;">
             <strong>CONTROLS:</strong> WASD or Arrow Keys to move • SPACEBAR at dealers to shop<br>
             <strong>OBJECTIVE:</strong> Collect cash 💵 for money • Ice ❄ costs money but gives buzz • Avoid police 👮‍♂️<br>
             <strong>WARNING:</strong> Negative money = dealers kill you • High money = police spawn!
         </div>
     </div>
     
-    <div id="gameOver">
-        <h2>💀 FLATLINED 💀</h2>
-        <p>The poison finally caught up...</p>
-        <p><strong>Survival Time:</strong> <span id="survivalTime">0</span> seconds</p>
-        <p><strong>Cash Earned:</strong> $<span id="finalMoney">0</span></p>
-        <button onclick="gameManager.restartGame()">RESPAWN</button>
+    <!-- Main Menu - Shows initially -->
+    <div id="mainMenu" class="overlay-menu">
+        <div class="menu-content">
+            <h2>🏃‍♂️ ON THE RUN</h2>
+            <p class="menu-subtitle">Survive the Streets</p>
+            <div class="menu-buttons">
+                <button id="newGameButton" class="menu-btn primary">New Game</button>
+                <button id="loadGameButton" class="menu-btn secondary">Load Game</button>
+                <button id="settingsButton" class="menu-btn secondary">Settings</button>
+                <button id="quitButton" class="menu-btn danger">Quit Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause Menu - Shows when ESC is pressed during gameplay -->
+    <div id="pauseMenu" class="overlay-menu" style="display: none;">
+        <div class="menu-content">
+            <h2>⏸️ PAUSED</h2>
+            <div class="menu-buttons">
+                <button id="resumeButton" class="menu-btn primary">Resume Game</button>
+                <button id="saveGameButton" class="menu-btn secondary">Save Game</button>
+                <button id="settingsButton2" class="menu-btn secondary">Settings</button>
+                <button id="quitToMenuButton" class="menu-btn danger">Quit to Menu</button>
+            </div>
+        </div>
     </div>
     
-    <div id="shop">
-        <h3>🏍️ STREET DEALER</h3>
-        <p style="color: #ccc; font-style: italic;">"Got the good stuff, need it quick..."</p>
-        <div style="margin: 20px 0;">
-            <button onclick="gameManager.buySupply(0)" id="supply1">Quick Hit - $20 (+50 buzz)</button><br>
-            <button onclick="gameManager.buySupply(1)" id="supply2">Double Dose - $50 (+100 buzz)</button><br>
-            <button onclick="gameManager.buySupply(2)" id="supply3">Pure Grade - $100 (+200 buzz)</button><br>
+    <!-- Game Over Menu -->
+    <div id="gameOver" class="overlay-menu" style="display: none;">
+        <div class="menu-content">
+            <h2>💀 FLATLINED 💀</h2>
+            <p>The poison finally caught up...</p>
+            <div class="stats">
+                <p><strong>Survival Time:</strong> <span id="survivalTime">0</span> seconds</p>
+                <p><strong>Cash Earned:</strong> $<span id="finalMoney">0</span></p>
+            </div>
+            <div class="menu-buttons">
+                <button id="restartButton" class="menu-btn primary">RESPAWN</button>
+                <button id="backToMenuButton" class="menu-btn secondary">Main Menu</button>
+            </div>
         </div>
-        <button onclick="gameManager.closeShop()" style="background: linear-gradient(45deg, #ff4757, #ff3742);">Leave</button>
-        <p style="color: #ff6b7a; font-size: 12px; margin-top: 15px;">
-            <em>⚠️ Tolerance builds with each purchase</em>
-        </p>
+    </div>
+    
+    <!-- Shop Menu - Shows when near dealer and pressing spacebar -->
+    <div id="shop" class="overlay-menu" style="display: none;">
+        <div class="menu-content">
+            <h3>🏍️ STREET DEALER</h3>
+            <p class="dealer-quote">"Got the good stuff, need it quick..."</p>
+            <div class="shop-items">
+                <button id="supply1" class="shop-btn">Quick Hit - $20 (+50 buzz)</button>
+                <button id="supply2" class="shop-btn">Double Dose - $50 (+100 buzz)</button>
+                <button id="supply3" class="shop-btn">Pure Grade - $100 (+200 buzz)</button>
+            </div>
+            <button id="leaveShopButton" class="menu-btn danger">Leave</button>
+            <p class="warning-text">⚠️ Tolerance builds with each purchase</p>
+        </div>
+    </div>
+
+    <!-- Settings Menu -->
+    <div id="settingsMenu" class="overlay-menu" style="display: none;">
+        <div class="menu-content">
+            <h2>⚙️ SETTINGS</h2>
+            <div class="settings-options">
+                <div class="setting-item">
+                    <label for="volumeSlider">Sound Volume:</label>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="30">
+                    <span id="volumeValue">30%</span>
+                </div>
+                <div class="setting-item">
+                    <label for="difficultySelect">Difficulty:</label>
+                    <select id="difficultySelect">
+                        <option value="easy">Easy</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+            </div>
+            <div class="menu-buttons">
+                <button id="saveSettingsButton" class="menu-btn primary">Save Settings</button>
+                <button id="cancelSettingsButton" class="menu-btn secondary">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -53,7 +115,7 @@
         // Initialize game when DOM is loaded
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-            window.gameManager = new GameManager();
+                window.gameManager = new GameManager();
                 await window.gameManager.init();
             } catch (error) {
                 console.error('Failed to initialize game:', error);
@@ -61,4 +123,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

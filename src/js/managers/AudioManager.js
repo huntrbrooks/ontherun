@@ -1,6 +1,7 @@
 export class AudioManager {
     constructor() {
         this.sounds = {};
+        this.masterVolume = 0.3;
         this.initializeSounds();
     }
 
@@ -16,7 +17,7 @@ export class AudioManager {
         Object.entries(soundFiles).forEach(([name, path]) => {
             try {
                 this.sounds[name] = new Audio(path);
-                this.sounds[name].volume = 0.3;
+                this.sounds[name].volume = this.masterVolume;
             } catch (error) {
                 console.warn(`Could not load sound: ${name}`);
                 this.sounds[name] = null;
@@ -24,10 +25,22 @@ export class AudioManager {
         });
     }
 
+    setVolume(volume) {
+        this.masterVolume = Math.max(0, Math.min(1, volume));
+        
+        // Update volume for all loaded sounds
+        Object.values(this.sounds).forEach(sound => {
+            if (sound) {
+                sound.volume = this.masterVolume;
+            }
+        });
+    }
+
     playSound(soundName) {
         const sound = this.sounds[soundName];
-        if (sound) {
+        if (sound && this.masterVolume > 0) {
             sound.currentTime = 0;
+            sound.volume = this.masterVolume;
             sound.play().catch(() => {
                 // Ignore play errors (e.g., if user hasn't interacted with page)
             });
@@ -48,5 +61,14 @@ export class AudioManager {
 
     playShopSound() {
         this.playSound('shop');
+    }
+
+    // Placeholder for background music
+    playBackgroundMusic() {
+        // Could implement background music here
+    }
+
+    stopBackgroundMusic() {
+        // Could implement background music stopping here
     }
 }

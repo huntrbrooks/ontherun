@@ -104,14 +104,18 @@ export class CollisionManager {
     checkDealerCollisions() {
         const player = this.gameManager.player;
         const dealers = this.gameManager.dealers;
-        
-        for (const dealer of dealers) {
+        for (let i = 0; i < dealers.length; i++) {
+            const dealer = dealers[i];
             if (this.getDistance(player, dealer) < player.size + dealer.size) {
+                // Check cooldown
+                if (dealer.lastShopTime && Date.now() - dealer.lastShopTime < 30000) {
+                    continue; // Still on cooldown
+                }
                 if (player.money < 0) {
                     this.gameManager.gameOverReason = "DEALER_KILLED";
                     this.gameManager.gameOver();
                 } else {
-                    this.gameManager.openShop();
+                    this.gameManager.openShop(i);
                 }
                 return;
             }

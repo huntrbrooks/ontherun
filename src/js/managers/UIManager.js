@@ -14,7 +14,8 @@ export class UIManager {
             'shop', 'survivalTime', 'finalMoney',
             'supply1', 'supply2', 'supply3',
             'mainMenu', 'pauseMenu', 'continueButton',
-            'newGameButton', 'loadGameButton', 'quitButton'
+            'newGameButton', 'loadGameButton', 'quitButton',
+            'saveButton', 'quitToMenuButton'
         ];
 
         elementIds.forEach(id => {
@@ -35,7 +36,7 @@ export class UIManager {
             if (button) {
                 button.addEventListener('click', () => {
                     const index = parseInt(id.replace('supply', '')) - 1;
-                    this.gameManager.buySupply(index);
+                    window.gameManager.buySupply(index);
                 });
             }
         });
@@ -43,26 +44,42 @@ export class UIManager {
         // Main menu buttons
         if (this.elements.newGameButton) {
             this.elements.newGameButton.addEventListener('click', () => {
-                this.gameManager.startGame();
+                this.hideAllMenus();
+                window.gameManager.startGame();
             });
         }
 
         if (this.elements.loadGameButton) {
             this.elements.loadGameButton.addEventListener('click', () => {
-                this.gameManager.loadGame();
-                this.gameManager.startGame();
+                this.hideAllMenus();
+                window.gameManager.loadGame();
+                window.gameManager.startGame();
             });
         }
 
         if (this.elements.continueButton) {
             this.elements.continueButton.addEventListener('click', () => {
-                this.gameManager.resumeGame();
+                this.hideAllMenus();
+                window.gameManager.resumeGame();
             });
         }
 
         if (this.elements.quitButton) {
             this.elements.quitButton.addEventListener('click', () => {
-                this.gameManager.showMainMenu();
+                window.close();
+            });
+        }
+
+        if (this.elements.saveButton) {
+            this.elements.saveButton.addEventListener('click', () => {
+                window.gameManager.saveGame();
+            });
+        }
+
+        if (this.elements.quitToMenuButton) {
+            this.elements.quitToMenuButton.addEventListener('click', () => {
+                this.hideAllMenus();
+                this.showMainMenu();
             });
         }
     }
@@ -130,7 +147,7 @@ export class UIManager {
         this.hideAllMenus();
         if (this.elements.shop) {
             this.elements.shop.style.display = 'block';
-            this.updateShopPrices(this.gameManager.purchaseCount);
+            this.updateShopPrices(window.gameManager.purchaseCount);
         }
     }
 
@@ -151,7 +168,7 @@ export class UIManager {
             const button = this.elements[supply.id];
             if (button) {
                 const cost = Math.floor(supply.baseCost * (1 + purchaseCount * 0.5));
-                const canAfford = this.gameManager.player.money >= cost;
+                const canAfford = window.gameManager.player.money >= cost;
                 button.textContent = `Quick Hit - $${cost} (+${supply.baseBuzz} buzz)`;
                 button.disabled = !canAfford;
                 button.style.opacity = canAfford ? '1' : '0.5';

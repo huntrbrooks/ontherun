@@ -7,8 +7,10 @@
 body {
     margin: 0;
     padding: 0;
-    background: #1a1a1a;
-    color: #fff;
+    background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+    background-size: 400% 400%;
+    animation: backgroundShift 20s ease infinite;
+    color: white;
     font-family: 'Arial', sans-serif;
     display: flex;
     justify-content: center;
@@ -26,6 +28,19 @@ body {
 #gameContainer {
     position: relative;
     text-align: center;
+    max-width: 900px;
+    background: linear-gradient(145deg, 
+        rgba(0, 0, 0, 0.4), 
+        rgba(20, 20, 40, 0.6), 
+        rgba(0, 0, 0, 0.4)
+    );
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 
+        0 0 50px rgba(255, 0, 0, 0.3),
+        inset 0 0 30px rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
 }
 
 canvas {
@@ -37,6 +52,8 @@ canvas {
         inset 0 0 20px rgba(255, 255, 255, 0.05);
     position: relative;
     transition: all 0.3s ease;
+    display: block;
+    margin: 0 auto;
 }
 
 canvas:hover {
@@ -46,85 +63,259 @@ canvas:hover {
 }
 
 #ui {
-    position: static;
     display: flex;
-    flex-direction: row;
+    justify-content: space-between;
+    margin: 20px 0;
+    padding: 0 25px;
     gap: 15px;
-    font-size: 18px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 25px;
+    flex-wrap: wrap;
 }
 
 #health, #money, #timer {
-    margin: 0;
-    padding: 5px 10px;
-    border-radius: 5px;
-    background: rgba(0, 0, 0, 0.5);
-    min-width: 90px;
-    text-align: left;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 30px;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    position: relative;
+    overflow: hidden;
+    min-width: 120px;
+    text-align: center;
+}
+
+#health::before, #money::before, #timer::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.1), 
+        transparent
+    );
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+    opacity: 0;
+}
+
+#health:hover::before, #money:hover::before, #timer:hover::before {
+    opacity: 1;
+    transform: rotate(45deg) translate(50%, 50%);
+}
+
+#health {
+    background: linear-gradient(135deg, #ff4757, #ff3742, #e55039);
+}
+
+#money {
+    background: linear-gradient(135deg, #2ed573, #1dd1a1, #00d2d3);
+}
+
+#timer {
+    background: linear-gradient(135deg, #5f27cd, #341f97, #6c5ce7);
 }
 
 #instructions {
     margin-top: 20px;
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
     font-size: 14px;
-    line-height: 1.5;
+    color: #e0e0e0;
+    background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.6), 
+        rgba(20, 20, 40, 0.4), 
+        rgba(0, 0, 0, 0.6)
+    );
+    padding: 20px;
+    border-radius: 15px;
+    line-height: 1.6;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+        0 5px 20px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
 }
 
-#gameOver, #shop {
+#gameOver {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.9);
-    padding: 30px;
-    border-radius: 10px;
+    background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.95), 
+        rgba(40, 20, 20, 0.95), 
+        rgba(0, 0, 0, 0.95)
+    );
+    padding: 50px;
+    border: 3px solid transparent;
+    border-image: linear-gradient(45deg, #ff4757, #ff6b7a, #ff4757) 1;
+    border-radius: 20px;
     text-align: center;
-    box-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+    box-shadow: 
+        0 0 80px rgba(255, 71, 87, 0.6),
+        inset 0 0 50px rgba(255, 71, 87, 0.1);
+    backdrop-filter: blur(10px);
+    animation: gameOverPulse 2s ease-in-out infinite alternate;
+    z-index: 1000;
+}
+
+@keyframes gameOverPulse {
+    0% { box-shadow: 0 0 80px rgba(255, 71, 87, 0.6), inset 0 0 50px rgba(255, 71, 87, 0.1); }
+    100% { box-shadow: 0 0 120px rgba(255, 71, 87, 0.8), inset 0 0 70px rgba(255, 71, 87, 0.2); }
 }
 
 #gameOver h2 {
     color: #ff4757;
     margin-bottom: 20px;
+    font-size: 2.2em;
+    text-shadow: 0 0 15px rgba(255, 71, 87, 0.6);
+}
+
+#shop {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, 
+        rgba(20, 20, 40, 0.98), 
+        rgba(40, 40, 60, 0.95), 
+        rgba(20, 20, 40, 0.98)
+    );
+    padding: 40px;
+    border: 2px solid transparent;
+    border-image: linear-gradient(45deg, #6c5ce7, #a55eea, #6c5ce7) 1;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 
+        0 0 60px rgba(108, 92, 231, 0.5),
+        inset 0 0 30px rgba(108, 92, 231, 0.1);
+    min-width: 350px;
+    backdrop-filter: blur(15px);
+    animation: shopGlow 3s ease-in-out infinite alternate;
+    z-index: 1000;
+}
+
+@keyframes shopGlow {
+    0% { box-shadow: 0 0 60px rgba(108, 92, 231, 0.5), inset 0 0 30px rgba(108, 92, 231, 0.1); }
+    100% { box-shadow: 0 0 80px rgba(108, 92, 231, 0.7), inset 0 0 40px rgba(108, 92, 231, 0.2); }
 }
 
 button {
-    background: linear-gradient(45deg, #ff4757, #ff3742);
-    border: none;
+    background: linear-gradient(135deg, #5f27cd, #341f97, #6c5ce7);
     color: white;
-    padding: 10px 20px;
+    border: none;
+    padding: 15px 30px;
     margin: 10px;
-    border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
-    transition: transform 0.2s;
+    border-radius: 30px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 8px 25px rgba(95, 39, 205, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent
+    );
+    transition: left 0.5s;
+}
+
+button:hover::before {
+    left: 100%;
 }
 
 button:hover {
-    transform: scale(1.05);
+    background: linear-gradient(135deg, #6c5ce7, #5f27cd, #7c4dff);
+    transform: translateY(-3px);
+    box-shadow: 
+        0 12px 35px rgba(95, 39, 205, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-@keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+button:active {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 6px 20px rgba(95, 39, 205, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 h1 {
     color: #ff4757;
-    text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
-    margin-bottom: 30px;
+    text-shadow: 
+        0 0 20px rgba(255, 71, 87, 0.8),
+        0 0 40px rgba(255, 71, 87, 0.4),
+        0 0 60px rgba(255, 71, 87, 0.2);
+    font-size: 2.8em;
+    margin: 15px 0;
+    background: linear-gradient(45deg, #ff4757, #ff6b7a, #ff4757);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: titlePulse 4s ease-in-out infinite alternate,
+               gradientShift 3s ease infinite;
 }
 
-#gameCanvas {
-    display: block;
-    margin: 0 auto;
-    background: #2c2c54;
-    border: 2px solid #40407a;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+@keyframes titlePulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+h3 {
+    color: #6c5ce7;
+    margin-bottom: 25px;
+    text-shadow: 0 0 15px rgba(108, 92, 231, 0.6);
+    font-size: 1.4em;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.7; }
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+    #gameContainer {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    #ui {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    canvas {
+        max-width: 100%;
+        height: auto;
+    }
 }
